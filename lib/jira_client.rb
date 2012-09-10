@@ -9,6 +9,7 @@ class JiraClient
   end
 
   def issue_by_id(id)
-    @client.Issue.jql("issueKey='#{id}'").first
+    issue = @client.Issue.jql("issueKey='#{id}'").first
+    Issue.new(issue.key, issue.summary, issue.assignee.name, issue.status.name)
   end
 end
