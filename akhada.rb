@@ -24,7 +24,18 @@ class Akhada < Sinatra::Base
   get '/issue/:id' do
     protected!
     issue = JiraClient.new(@username, @password).issue_by_id(params[:id])
-    {:key => issue.key, :summary => issue.summary, :assignee => issue.assignee, :status => issue.status}.to_json
+    { :key => issue.key,
+      :summary => issue.summary,
+      :assignee => issue.assignee,
+      :status => issue.status
+    }.merge(transitions(params[:id])).to_json
+  end
+
+  def transitions(id)
+    auth = {:username => @username, :password => @password}
+    response = HTTParty.get("http://localhost:2990/jira/rest/api/2/issue/#{id}/transitions", :basic_auth => auth).parsed_response
+    transitions = response["transitions"].inject([]) {|states, value| states << {:id => value["id"], :name => value["name"]}}
+    {:transitions => transitions}
   end
 
 end

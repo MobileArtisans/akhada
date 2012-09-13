@@ -40,10 +40,21 @@ describe 'Akhada' do
     issue = Issue.new(key, "summary", "assignee", "Open")
     JiraClient.stub_chain(:new, :issue_by_id).and_return(issue)
 
+    response = {"transitions" => [{"id" => "2", "name" => "Closed"}]}
+    HTTParty.stub_chain(:get, :parsed_response).and_return(response)
+
+    expected_response_body = {
+      :key => "TEST-1234",
+      :summary => "summary",
+      :assignee => "assignee",
+      :status => "Open",
+      :transitions => [{"id" => "2", "name" => "Closed"}]
+    }.to_json
+
     get '/issue/TEST-1234'
 
     last_response.status.should == 200
-    last_response.body.should == {:key => "TEST-1234", :summary => "summary", :assignee => "assignee", :status => "Open"}.to_json
+    last_response.body.should == expected_response_body
   end
 
 end
