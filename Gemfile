@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'sinatra'
-gem 'jira-ruby', :require => 'jira'
+gem 'sinatra-contrib'
 gem 'httparty'
 
 group :test do

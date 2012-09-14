@@ -1,6 +1,10 @@
 require 'sinatra/base'
+require "sinatra/config_file"
 
 class Akhada < Sinatra::Base
+  register Sinatra::ConfigFile
+
+  config_file './config.yml'
 
   helpers do
     def protected!
@@ -21,21 +25,16 @@ class Akhada < Sinatra::Base
     "Welcome to the chaos !"
   end
 
-  get '/issue/:id' do
+  get '/:site/issue/:id' do
     protected!
-    issue = JiraClient.new(@username, @password).issue_by_id(params[:id])
+    url = settings.protocol + params[:site]
+    client = JiraClient.new(@username, @password)
+    issue = client.issue_by_id(url, params[:id])
     { :key => issue.key,
       :summary => issue.summary,
       :assignee => issue.assignee,
       :status => issue.status
-    }.merge(transitions(params[:id])).to_json
-  end
-
-  def transitions(id)
-    auth = {:username => @username, :password => @password}
-    response = HTTParty.get("http://localhost:2990/jira/rest/api/2/issue/#{id}/transitions", :basic_auth => auth).parsed_response
-    transitions = response["transitions"].inject([]) {|states, value| states << {:id => value["id"], :name => value["name"]}}
-    {:transitions => transitions}
+    }.merge(client.transitions(url, params[:id])).to_json
   end
 
 end
