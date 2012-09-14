@@ -1,0 +1,7 @@
+development: &default
+  protocol: "http://"
+  url: "localhost:4567/jira"
+test:
+  <<: *default
+production:
+  protocol: "https://"
