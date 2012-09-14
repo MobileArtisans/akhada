@@ -6,19 +6,52 @@ describe JiraClient do
   }
 
   it "should search by issue id" do
-    jira = mock('jira::client')
-    mock_issue = mock("jira::issue")
-    mock_issue.stub(:key).and_return("TEST-1")
-    mock_issue.stub(:summary).and_return("issue summary")
-    mock_issue.stub_chain("assignee.name").and_return("bob")
-    mock_issue.stub_chain("status.name").and_return('Open')
-    jira.stub_chain("Issue.jql").and_return([mock_issue])
-    JIRA::Client.should_receive(:new).and_return(jira)
+    stub_issue = stub(:parsed_response => jira_issue("TEST-1", "issue summary", "bob", "Open"))
+    jira = HTTParty.should_receive(:get).with("localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub_issue)
 
-    issue = client.issue_by_id("TEST-1")
+    issue = client.issue_by_id("localhost", "TEST-1")
     issue.key.should == "TEST-1"
     issue.summary.should == "issue summary"
     issue.status.should == "Open"
     issue.assignee.should == "bob"
+  end
+
+  it "should return transitions" do
+    stub_issue = stub(:parsed_response => transitions("TEST-1"))
+    jira = HTTParty.should_receive(:get).with("localhost/rest/api/2/issue/TEST-1/transitions", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub_issue)
+
+    transitions = client.transitions("localhost", "TEST-1")
+
+    transitions.should == {:transitions => [{:id => 1, :name => "Accepted"}, {:id => 2, :name => "Rejected"}] }
+  end
+
+  def transitions(key)
+    {
+      "transitions" => [
+        {
+          "id" => 1,
+          "name" => "Accepted"
+        },
+        {
+          "id" => 2,
+          "name" => "Rejected"
+        }
+      ]
+    }
+  end
+
+  def jira_issue(key, summary, assignee, status)
+    {
+      "key" => key,
+      "fields" => {
+        "summary" => summary,
+        "assignee" => {
+          "name" => assignee
+        },
+        "status" => {
+          "name" => status
+        }
+      }
+    }
   end
 end
