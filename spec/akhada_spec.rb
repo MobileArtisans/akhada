@@ -27,25 +27,12 @@ describe 'Akhada' do
       last_response.body.should == "Not authorized\n"
     end
 
-    it "should not authorize with bad credentials" do
-      pending
-      authorize 'wrong', 'creds'
-
-      get '/my.jira.com/issue/TEST-1234'
-
-      last_response.status.should == 401
-    end
-
     it "should authorize for correct credentials and return requested issue attributes json" do
-      pending
       authorize 'admin', 'admin'
 
       key = 'TEST-1234'
-      issue = Issue.new(key, "summary", "assignee", "Open")
+      issue = Issue.new(key, "summary", "assignee", "Open", [{"id" => "2", "name" => "Closed"}])
       JiraClient.stub_chain(:new, :issue_by_id).and_return(issue)
-
-      response = {"transitions" => [{"id" => "2", "name" => "Closed"}]}
-      HTTParty.stub_chain(:get, :parsed_response).and_return(response)
 
       expected_response_body = {
         :key => "TEST-1234",
@@ -55,7 +42,7 @@ describe 'Akhada' do
         :transitions => [{"id" => "2", "name" => "Closed"}]
       }.to_json
 
-      get '/issue/TEST-1234'
+      get '/somesite/issue/TEST-1234'
 
       last_response.status.should == 200
       last_response.body.should == expected_response_body

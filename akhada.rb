@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require "sinatra/config_file"
+require 'json'
 
 class Akhada < Sinatra::Base
   register Sinatra::ConfigFile
@@ -30,11 +31,8 @@ class Akhada < Sinatra::Base
     url = settings.protocol + params[:site]
     client = JiraClient.new(@username, @password)
     issue = client.issue_by_id(url, params[:id])
-    { :key => issue.key,
-      :summary => issue.summary,
-      :assignee => issue.assignee,
-      :status => issue.status
-    }.merge(client.transitions(url, params[:id])).to_json
+    content_type :json
+    issue.to_json
   end
 
 end
