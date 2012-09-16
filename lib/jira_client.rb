@@ -11,7 +11,10 @@ class JiraClient
   end
 
   def issue_by_id(issue_id)
-    issue = HTTParty.get(@base_uri + "/rest/api/2/issue/#{issue_id}", :basic_auth => auth).parsed_response
+    response = HTTParty.get(@base_uri + "/rest/api/2/issue/#{issue_id}", :basic_auth => auth)
+    return nil if response.code == 404
+    raise AuthError if response.code == 401
+    issue = response.parsed_response
     Issue.new(issue["key"], issue["fields"]["summary"], issue["fields"]["assignee"]["name"], issue["fields"]["status"]["name"], transitions(issue_id))
   end
 
@@ -31,4 +34,7 @@ class JiraClient
     response["transitions"].collect {|value| {:id => value["id"], :name => value["name"]} }
   end
 
+end
+
+class AuthError < Exception
 end

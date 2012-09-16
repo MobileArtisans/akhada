@@ -6,7 +6,7 @@ describe JiraClient do
   }
 
   it "should search by issue id" do
-    stub_issue = stub(:parsed_response => jira_issue("TEST-1", "issue summary", "bob", "Open"))
+    stub_issue = stub(:parsed_response => jira_issue("TEST-1", "issue summary", "bob", "Open"), :code => 200)
     HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub_issue)
     HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1/transitions", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub(:parsed_response => transitions))
 
@@ -16,6 +16,20 @@ describe JiraClient do
     issue.status.should == "Open"
     issue.assignee.should == "bob"
     issue.transitions.should == [{:id => 1, :name => "Accepted"}, {:id => 2, :name => "Rejected"}]
+  end
+
+  it "should return nil if issue with given key does not exist" do
+    stub_issue = stub(:code => 404)
+    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub_issue)
+
+    issue = client.issue_by_id("TEST-1")
+    issue.should be_nil
+  end
+
+  it "should raise error if given credentials are invalid" do
+    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub(:code => 401))
+
+    expect {client.issue_by_id("TEST-1")}.to raise_error AuthError
   end
 
   it "should transition the issue to given state" do

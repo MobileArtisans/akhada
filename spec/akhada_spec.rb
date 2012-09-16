@@ -47,6 +47,26 @@ describe 'Akhada' do
       last_response.status.should == 200
       last_response.body.should == expected_response_body
     end
+    it "should return a 404 for invalid issue id" do
+      authorize 'admin', 'admin'
+
+      key = 'some-1234'
+      JiraClient.stub_chain(:new, :issue_by_id).and_return(nil)
+
+      get '/somesite/issue/TEST-1234'
+
+      last_response.status.should == 404
+    end
+
+    it "should return a 401 response for AuthError due to invalid credentials" do
+      authorize "bad", "user"
+      key = "some-1233"
+      JiraClient.stub_chain(:new, :issue_by_id).and_raise AuthError
+
+      get '/somesite/issue/some-1233'
+
+      last_response.status.should == 401
+    end
 
   end
 

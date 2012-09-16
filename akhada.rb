@@ -22,6 +22,11 @@ class Akhada < Sinatra::Base
     end
   end
 
+  error  do
+    puts "something"
+    halt 401
+  end
+
   get '/' do
     "Welcome to the chaos !"
   end
@@ -30,8 +35,13 @@ class Akhada < Sinatra::Base
     protected!
     url = settings.protocol + params[:site]
     client = JiraClient.new(@username, @password, url)
-    issue = client.issue_by_id(params[:id])
+    begin
+      issue = client.issue_by_id(params[:id])
+    rescue AuthError
+      halt 401
+    end
     content_type :json
+    halt 404 if issue.nil?
     issue.to_json
   end
 
