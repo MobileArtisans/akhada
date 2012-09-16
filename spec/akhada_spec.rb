@@ -50,4 +50,27 @@ describe 'Akhada' do
 
   end
 
+  context "transition a issue" do
+
+    it "should not authorize without credentials" do
+      post '/my.jira.com/issue/TEST-1234/transition'
+
+      last_response.status.should == 401
+      last_response.body.should == "Not authorized\n"
+    end
+
+    it "should authorize and transition to a given possible state" do
+      authorize 'admin', 'admin'
+
+      transitions = {:transitions => [{"id" => 3, "name" => "Accepted"}]}
+      JiraClient.stub_chain(:new, :transition_issue).and_return(transitions)
+
+      post '/my.jira.com/issue/TEST-1234/transition', {:transition_id => "2"}.to_json
+
+      last_response.status.should == 200
+      last_response.body.should == transitions.to_json
+    end
+
+  end
+
 end

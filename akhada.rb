@@ -29,10 +29,19 @@ class Akhada < Sinatra::Base
   get '/:site/issue/:id' do
     protected!
     url = settings.protocol + params[:site]
-    client = JiraClient.new(@username, @password)
-    issue = client.issue_by_id(url, params[:id])
+    client = JiraClient.new(@username, @password, url)
+    issue = client.issue_by_id(params[:id])
     content_type :json
     issue.to_json
+  end
+
+  post '/:site/issue/:id/transition' do
+    protected!
+    url = settings.protocol + params[:site]
+    client = JiraClient.new(@username, @password, url)
+    body = JSON.parse(request.body.read)
+    content_type :json
+    client.transition_issue(params[:id], body["transition_id"]).to_json
   end
 
 end
