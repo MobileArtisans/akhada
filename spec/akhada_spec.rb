@@ -93,4 +93,27 @@ describe 'Akhada' do
 
   end
 
+  context "get users" do
+
+    it "should not authorize without credentials" do
+      get '/my.jira.com/issue/TEST-1234/assignable'
+
+      last_response.status.should == 401
+      last_response.body.should == "Not authorized\n"
+    end
+
+    it "should authorize and return a list of valid users" do
+      authorize 'admin', 'admin'
+
+      users = {:users => [{"name" => "user", "displayName" => "Test User"}]}
+      JiraClient.stub_chain(:new, :assignable_users).and_return(users)
+
+      get '/my.jira.com/issue/TEST-1234/assignable'
+
+      last_response.status.should == 200
+      last_response.body.should == users.to_json
+    end
+
+  end
+
 end

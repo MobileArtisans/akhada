@@ -19,12 +19,18 @@ class JiraClient
   end
 
   def transition_issue(issue_id, transition_id)
-    options = {:basic_auth => auth, :body => {:transition => {:id => transition_id}}, :headers => {'Content-Type' => 'application/json'}}
     response = HTTParty.post(@base_uri + "/rest/api/2/issue/#{issue_id}/transitions",
                              :basic_auth => auth,
                              :body => {:transition => {:id => transition_id}},
                              :headers => {'Content-Type' => 'application/json'})
     {:transitions => transitions(issue_id)}
+  end
+
+  def assignable_users(issue_id)
+    users = HTTParty.get(@base_uri + "/rest/api/2/user/assignable/search",
+                         :query => {:issueKey => issue_id},
+                         :basic_auth => auth).parsed_response
+    {:users => users}
   end
 
   private

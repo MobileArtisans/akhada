@@ -54,4 +54,13 @@ class Akhada < Sinatra::Base
     client.transition_issue(params[:id], body["transition_id"]).to_json
   end
 
+  get '/:site/issue/:id/assignable' do
+    protected!
+    url = settings.protocol + params[:site]
+    client = JiraClient.new(@username, @password, url)
+    users = client.assignable_users(params[:id])
+    content_type :json
+    users.to_json
+  end
+
 end
