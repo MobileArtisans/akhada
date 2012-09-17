@@ -23,7 +23,6 @@ class Akhada < Sinatra::Base
   end
 
   error  do
-    puts "something"
     halt 401
   end
 

@@ -21,14 +21,18 @@ describe JiraClient do
 
   it "should return nil if issue with given key does not exist" do
     stub_issue = stub(:code => 404)
-    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub_issue)
+    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1",
+                                       :basic_auth => {:username => 'user', :password => 'password'}
+                                       ).and_return(stub_issue)
 
     issue = client.issue_by_id("TEST-1")
     issue.should be_nil
   end
 
   it "should raise error if given credentials are invalid" do
-    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1", :basic_auth => {:username => 'user', :password => 'password'}).and_return(stub(:code => 401))
+    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/issue/TEST-1",
+                                       :basic_auth => {:username => 'user', :password => 'password'}
+                                       ).and_return(stub(:code => 401))
 
     expect {client.issue_by_id("TEST-1")}.to raise_error AuthError
   end
@@ -45,18 +49,17 @@ describe JiraClient do
   end
 
   it "should return a list of assignable users to a given issue" do
-    stub_user = stub(:parsed_response => assignable_users)
     HTTParty.should_receive(:get).with("http://localhost/rest/api/2/user/assignable/search",
                                        :query => {:issueKey => "TEST-1"},
                                        :basic_auth => {:username => 'user', :password => 'password'}
-                                       ).and_return(stub_user)
+                                       ).and_return(stub(:parsed_response => assignable_users))
 
     response = client.assignable_users("TEST-1")
 
-    response[:users][0]["name"].should == "alpha"
-    response[:users][0]["displayName"].should == "Alpha User"
-    response[:users][1]["name"].should == "beta"
-    response[:users][1]["displayName"].should == "Beta User"
+    response[:users][0][:name].should == "alpha"
+    response[:users][0][:displayName].should == "Alpha User"
+    response[:users][1][:name].should == "beta"
+    response[:users][1][:displayName].should == "Beta User"
   end
 
   def transitions
