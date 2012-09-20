@@ -51,7 +51,7 @@ describe 'Akhada' do
       authorize 'admin', 'admin'
 
       key = 'some-1234'
-      JiraClient.stub_chain(:new, :issue_by_id).and_return(nil)
+      JiraClient.stub_chain(:new, :issue_by_id).and_raise NotFoundError
 
       get '/somesite/issue/TEST-1234'
 

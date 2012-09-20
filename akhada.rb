@@ -4,6 +4,7 @@ require 'json'
 
 class Akhada < Sinatra::Base
   register Sinatra::ConfigFile
+  set :show_exceptions, :after_handler
 
   config_file './config.yml'
 
@@ -22,7 +23,11 @@ class Akhada < Sinatra::Base
     end
   end
 
-  error  do
+  error NotFoundError do
+    halt 404
+  end
+
+  error AuthError do
     halt 401
   end
 
@@ -34,13 +39,8 @@ class Akhada < Sinatra::Base
     protected!
     url = settings.protocol + params[:site]
     client = JiraClient.new(@username, @password, url)
-    begin
-      issue = client.issue_by_id(params[:id])
-    rescue AuthError
-      halt 401
-    end
+    issue = client.issue_by_id(params[:id])
     content_type :json
-    halt 404 if issue.nil?
     issue.to_json
   end
 
