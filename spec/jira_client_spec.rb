@@ -59,6 +59,15 @@ describe JiraClient do
     response[:users][1][:displayName].should == "Beta User"
   end
 
+  it "should assign the given user to an issue" do
+    HTTParty.should_receive(:put).with("http://localhost/rest/api/2/issue/TEST-1/assignee",
+                                       :basic_auth => {:username => 'user', :password => 'password'},
+                                       :body => {:name => "new_assignee"},
+                                       :headers => {"Content-Type"=>"application/json"})
+
+    client.assign_user("TEST-1", "new_assignee")
+  end
+
   def transitions
     {
       "transitions" => [

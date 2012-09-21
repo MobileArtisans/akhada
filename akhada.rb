@@ -62,4 +62,12 @@ class Akhada < Sinatra::Base
     users.to_json
   end
 
+  put '/:site/issue/:id/assignee' do
+    protected!
+    url = settings.protocol + params[:site]
+    client = JiraClient.new(@username, @password, url)
+    body = JSON.parse(request.body.read)
+    client.assign_user(params[:id], body["name"])
+  end
+
 end

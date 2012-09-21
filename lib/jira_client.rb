@@ -33,6 +33,13 @@ class JiraClient
     {:users => users}
   end
 
+  def assign_user(issue_id, name)
+    HTTParty.put(@base_uri + "/rest/api/2/issue/#{issue_id}/assignee",
+                 :basic_auth => auth,
+                 :body => {:name => name},
+                 :headers => {'Content-Type' => 'application/json'})
+  end
+
   private
 
   def transitions(issue_id)

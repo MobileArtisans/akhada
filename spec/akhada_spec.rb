@@ -116,4 +116,27 @@ describe 'Akhada' do
 
   end
 
+  context "set assignee" do
+
+    it "should not authorize without credentials" do
+      put '/my.jira.com/issue/TEST-1234/assignee'
+
+      last_response.status.should == 401
+      last_response.body.should == "Not authorized\n"
+    end
+
+    it "should authorize and set the assignee for an issue" do
+      pending
+      authorize 'admin', 'admin'
+
+      client = JiraClient.new("admin", "admin", "localhost")
+      client.should_receive(:assign_user).with("user")
+
+      put '/my.jira.com/issue/TEST-1234/assignee', {:name => "user"}.to_json
+
+      last_response.status.should == 200
+    end
+
+  end
+
 end
