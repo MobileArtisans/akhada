@@ -24,6 +24,14 @@ class JiraClient
     get_parsed_response(response)
   end
 
+  def projects
+    response = HTTParty.get(@base_uri + "/rest/api/2/project", 
+                            :basic_auth => auth,
+                            :headers => {'Content-Type' => 'application/json'})
+    projects = get_parsed_response(response)
+    projects.collect {|p| p["key"] }
+  end
+
   def assignable_users(issue_id)
     response = HTTParty.get(@base_uri + "/rest/api/2/user/assignable/search",
                             :query => {:issueKey => issue_id},

@@ -35,6 +35,15 @@ class Akhada < Sinatra::Base
     "Welcome to the chaos !"
   end
 
+  get '/:site/projects' do
+    protected!
+    url = settings.protocol + params[:site]
+    client = JiraClient.new(@username, @password, url)
+    projects = client.projects
+    content_type :json
+    projects.to_json
+  end
+
   get '/:site/issue/:id' do
     protected!
     url = settings.protocol + params[:site]

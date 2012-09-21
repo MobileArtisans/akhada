@@ -68,6 +68,17 @@ describe JiraClient do
     client.assign_user("TEST-1", "new_assignee")
   end
 
+  it "should return a list of projects" do
+    HTTParty.should_receive(:get).with("http://localhost/rest/api/2/project",
+                                       :basic_auth => {:username => 'user', :password => 'password'},
+                                       :headers => {"Content-Type" => "application/json"}).
+                                       and_return(stub(:code => 200, :parsed_response => projects))
+
+    response = client.projects
+
+    response.should == ["TEST", "DEV"]
+  end
+
   def transitions
     {
       "transitions" => [
@@ -108,6 +119,19 @@ describe JiraClient do
        "name" => "beta",
        "displayName" => "Beta User"
      }
+    ]
+  end
+
+  def projects
+    [
+      {
+        "key" => "TEST",
+        "name" => "Test"
+      },
+      {
+        "key" => "DEV",
+        "name" => "Development"
+      }
     ]
   end
 

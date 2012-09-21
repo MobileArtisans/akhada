@@ -93,6 +93,29 @@ describe 'Akhada' do
 
   end
 
+  context "get projects" do
+
+    it "should not authorize without credentials" do
+      get '/my.jira.com/projects'
+
+      last_response.status.should == 401
+      last_response.body.should == "Not authorized\n"
+    end
+
+    it "should authorize and return a list of valid users" do
+      authorize 'admin', 'admin'
+
+      projects = ["TEST", "DEV"]
+      JiraClient.stub_chain(:new, :projects).and_return(projects)
+
+      get '/my.jira.com/projects'
+
+      last_response.status.should == 200
+      last_response.body.should == projects.to_json
+    end
+
+  end
+
   context "get users" do
 
     it "should not authorize without credentials" do
