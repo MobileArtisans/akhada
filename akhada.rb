@@ -77,6 +77,7 @@ class Akhada < Sinatra::Base
     client = JiraClient.new(@username, @password, url)
     body = JSON.parse(request.body.read)
     client.assign_user(params[:id], body["name"])
+    200
   end
 
 end

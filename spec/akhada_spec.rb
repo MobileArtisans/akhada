@@ -149,11 +149,9 @@ describe 'Akhada' do
     end
 
     it "should authorize and set the assignee for an issue" do
-      pending
       authorize 'admin', 'admin'
 
-      client = JiraClient.new("admin", "admin", "localhost")
-      client.should_receive(:assign_user).with("user")
+      JiraClient.stub_chain(:new, :assign_user)
 
       put '/my.jira.com/issue/TEST-1234/assignee', {:name => "user"}.to_json
 
