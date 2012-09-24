@@ -13,7 +13,7 @@ class JiraClient
   def issue_by_id(issue_id)
     response = HTTParty.get(@base_uri + "/rest/api/2/issue/#{issue_id}", :basic_auth => auth)
     issue = get_parsed_response(response)
-    Issue.new(issue["key"], issue["fields"]["summary"], issue["fields"]["assignee"]["name"], issue["fields"]["status"]["name"], transitions(issue_id))
+    Issue.new(issue["key"], issue["fields"]["summary"], issue["fields"]["assignee"]["displayName"], issue["fields"]["status"]["name"], transitions(issue_id))
   end
 
   def transition_issue(issue_id, transition_id)

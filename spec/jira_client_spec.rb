@@ -100,7 +100,7 @@ describe JiraClient do
       "fields" => {
         "summary" => summary,
         "assignee" => {
-          "name" => assignee
+          "displayName" => assignee
         },
         "status" => {
           "name" => status
