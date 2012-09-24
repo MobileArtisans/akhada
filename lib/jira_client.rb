@@ -34,7 +34,7 @@ class JiraClient
 
   def assignable_users(issue_id)
     response = HTTParty.get(@base_uri + "/rest/api/2/user/assignable/search",
-                            :query => {:issueKey => issue_id},
+                            :query => {:issueKey => issue_id, :maxResults => 1000},
                             :basic_auth => auth)
 
     users = get_parsed_response(response).collect {|value| {:name => value["name"], :displayName => value["displayName"]} }

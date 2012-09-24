@@ -47,7 +47,7 @@ describe JiraClient do
 
   it "should return a list of assignable users to a given issue" do
     HTTParty.should_receive(:get).with("http://localhost/rest/api/2/user/assignable/search",
-                                       :query => {:issueKey => "TEST-1"},
+                                       :query => {:issueKey => "TEST-1", :maxResults => 1000},
                                        :basic_auth => {:username => 'user', :password => 'password'}
                                        ).and_return(stub(:parsed_response => assignable_users, :code => 200))
 
