@@ -49,7 +49,7 @@ describe JiraClient do
     HTTParty.should_receive(:get).with("http://localhost/rest/api/2/user/assignable/search",
                                        :query => {:issueKey => "TEST-1"},
                                        :basic_auth => {:username => 'user', :password => 'password'}
-                                       ).and_return(stub(:parsed_response => assignable_users))
+                                       ).and_return(stub(:parsed_response => assignable_users, :code => 200))
 
     response = client.assignable_users("TEST-1")
 
@@ -63,7 +63,7 @@ describe JiraClient do
     HTTParty.should_receive(:put).with("http://localhost/rest/api/2/issue/TEST-1/assignee",
                                        :basic_auth => {:username => 'user', :password => 'password'},
                                        :body => {:name => "new_assignee"}.to_json,
-                                       :headers => {"Content-Type"=>"application/json"})
+                                       :headers => {"Content-Type"=>"application/json"}).and_return(stub(:code => 200, :parsed_response => ''))
 
     client.assign_user("TEST-1", "new_assignee")
   end
