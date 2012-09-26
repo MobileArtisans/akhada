@@ -1,6 +1,6 @@
 Akhada
 ======
-  Akhada, API endpoint for [BaWall](http://github/MobileArtisans/baWall)
+  Akhada, API endpoint for [BaWall](http://github.com/MobileArtisans/baWall)
    
    [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/MobileArtisans/akhada)
    
