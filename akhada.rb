@@ -48,9 +48,7 @@ class Akhada < Sinatra::Base
     protected!
     url = settings.protocol + params[:site]
     client = JiraClient.new(@username, @password, url)
-    issue = client.issue_by_id(params[:id])
-    content_type :json
-    issue.to_json
+    render_issue(client, params[:id])
   end
 
   post '/:site/issue/:id/transition' do
@@ -60,6 +58,7 @@ class Akhada < Sinatra::Base
     body = JSON.parse(request.body.read)
     content_type :json
     client.transition_issue(params[:id], body["transition_id"]).to_json
+    render_issue(client, params[:id])
   end
 
   get '/:site/issue/:id/assignable' do
@@ -77,7 +76,12 @@ class Akhada < Sinatra::Base
     client = JiraClient.new(@username, @password, url)
     body = JSON.parse(request.body.read)
     client.assign_user(params[:id], body["name"])
-    200
+    render_issue(client, params[:id])
   end
 
+  def render_issue(client, id)
+    issue = client.issue_by_id(id)
+    content_type :json
+    issue.to_json
+  end
 end

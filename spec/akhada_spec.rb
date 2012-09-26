@@ -11,6 +11,20 @@ describe 'Akhada' do
     Akhada
   end
 
+  def issue(key)
+    Issue.new(key, "summary", "assignee", "Open", [{"id" => "2", "name" => "Closed"}])
+  end
+
+  def issue_as_json key
+    {
+      :key => key,
+      :summary => "summary",
+      :assignee => "assignee",
+      :status => "Open",
+      :transitions => [{"id" => "2", "name" => "Closed"}]
+    }.to_json
+  end
+
   it "should say welcome" do
     get '/'
 
@@ -31,21 +45,12 @@ describe 'Akhada' do
       authorize 'admin', 'admin'
 
       key = 'TEST-1234'
-      issue = Issue.new(key, "summary", "assignee", "Open", [{"id" => "2", "name" => "Closed"}])
-      JiraClient.stub_chain(:new, :issue_by_id).and_return(issue)
-
-      expected_response_body = {
-        :key => "TEST-1234",
-        :summary => "summary",
-        :assignee => "assignee",
-        :status => "Open",
-        :transitions => [{"id" => "2", "name" => "Closed"}]
-      }.to_json
+      JiraClient.stub_chain(:new, :issue_by_id).and_return(issue(key))
 
       get '/somesite/issue/TEST-1234'
 
       last_response.status.should == 200
-      last_response.body.should == expected_response_body
+      last_response.body.should == issue_as_json(key)
     end
     it "should return a 404 for invalid issue id" do
       authorize 'admin', 'admin'
@@ -84,11 +89,12 @@ describe 'Akhada' do
 
       transitions = {:transitions => [{"id" => 3, "name" => "Accepted"}]}
       JiraClient.stub_chain(:new, :transition_issue).and_return(transitions)
+      JiraClient.stub_chain(:new, :issue_by_id).and_return(issue("TEST-1234"))
 
       post '/my.jira.com/issue/TEST-1234/transition', {:transition_id => "2"}.to_json
 
       last_response.status.should == 200
-      last_response.body.should == transitions.to_json
+      last_response.body.should == issue_as_json("TEST-1234")
     end
 
   end
@@ -152,10 +158,12 @@ describe 'Akhada' do
       authorize 'admin', 'admin'
 
       JiraClient.stub_chain(:new, :assign_user)
+      JiraClient.stub_chain(:new, :issue_by_id).and_return(issue("TEST-1234"))
 
       put '/my.jira.com/issue/TEST-1234/assignee', {:name => "user"}.to_json
 
       last_response.status.should == 200
+      last_response.body.should == issue_as_json("TEST-1234")
     end
 
   end
