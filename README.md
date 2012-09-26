@@ -1,5 +1,5 @@
-Akhada
-======
+[Akhada] (https://github.com/MobileArtisans/akhada)
+========
   Akhada, API endpoint for [BaWall](http://github.com/MobileArtisans/baWall)
    
    [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/MobileArtisans/akhada)
@@ -28,4 +28,3 @@ https://github.com/MobileArtisans/akhada/issues
 ## Show me a live demo!
 
 The latest stable version of the server-side component is usually deployed to bawall.herokuapp.com.
-
